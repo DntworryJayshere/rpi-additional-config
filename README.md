@@ -32,3 +32,47 @@
 14. Remove staging certificate & secrets
     $ kubectl delete certificates jmr-devops
     $ kubectl delete secrets jmr-devops-tls
+
+15. Configure cert-manager to use Lets Encrypt (production).
+    $ kubectl apply -f letsencrypt-issuer-production.yaml
+16. Ensure the new k8s resource type created by cert-manager "ClusterIssuer" status is READY=True.
+    $ kubectl get clusterissuers
+
+17. Include proper certificate and ingress config within application yaml.
+
+<!-- ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: jmr-devops
+  namespace: default
+spec:
+  secretName: jmr-devops-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - jmr-devops.com
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+  name: personal-site-nginx-ingress
+spec:
+  rules:
+  - host: jmr-devops.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: personal-site-nginx-service
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - jmr-devops.com
+    secretName: jmr-devops-tls -->
