@@ -1,4 +1,4 @@
-1. Install bare-metal nginx-ingress following docs @ https://kubernetes.github.io/ingress-nginx/deploy/
+1. Install bare-metal nginx-ingress following docs @ https://kubernetes.github.io/ingress-nginx/deploy/ .
    $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.3/deploy/static/provider/baremetal/deploy.yaml
 2. Check if the ingress controller pods have started.
    $ kubectl get pods -n ingress-nginx \
@@ -14,15 +14,21 @@
    $ grep image: cert-manager-arm.yaml
 6. Create from yaml file created in step 1.
    $ kubectl apply -f cert-manager-arm.yaml
-7. Change domain dns on cloudflare to be exposed homenetwork IP
-8. Ensure dns is functioning properly
+7. Change domain dns on cloudflare to be exposed homenetwork IP.
+8. Ensure dns is functioning properly.
    $ dig +short <domain.com>
    //should return exposed ip or cloudflare's proxy Ip adresses
-9. Enable port forwarding on home router to direct outside traffic to cluster master ip address on port 80 http, and on port 443 for https
+9. Enable port forwarding on home router to direct outside traffic to cluster master ip address on port 80 http, and on port 443 for https.
 
-10. Configure cert-manager to use Lets Encrypt (staging)
+10. Configure cert-manager to use Lets Encrypt (staging).
     $ kubectl apply -f letsencrypt-issuer-staging.yaml
-11. Ensure the new k8s resource type created by cert-manager "ClusterIssuer" is READY=True
+11. Ensure the new k8s resource type created by cert-manager "ClusterIssuer" status is READY=True.
     $ kubectl get clusterissuers
 
-12.
+12. Mannually request test certificate.
+    $ kubectl apply -f le-test-certificate.yaml
+13. Ensure the certificate status is READY=True.
+    $ kubectl get certificates
+14. Remove staging certificate & secrets
+    $ kubectl delete certificates jmr-devops
+    $ kubectl delete secrets jmr-devops-tls
