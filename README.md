@@ -6,6 +6,8 @@
 3. Create nginx loadbalancer.
    $ kubectl apply -f nginx-loadbalancer.yaml
 
+---
+
 4. Install cert manager for arm64 architecture.
    $ curl -sL https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml | sed -r 's/(image:._):(v._)$/\1-arm64:\2/g' > cert-manager-arm.yaml
 5. Ensure the image is what we want.
@@ -17,3 +19,10 @@
    $ dig +short <domain.com>
    //should return exposed ip or cloudflare's proxy Ip adresses
 9. Enable port forwarding on home router to direct outside traffic to cluster master ip address on port 80 http, and on port 443 for https
+
+10. Configure cert-manager to use Lets Encrypt (staging)
+    $ kubectl apply -f letsencrypt-issuer-staging.yaml
+11. Ensure the new k8s resource type created by cert-manager "ClusterIssuer" is READY=True
+    $ kubectl get clusterissuers
+
+12.
