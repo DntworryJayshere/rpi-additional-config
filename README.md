@@ -1,9 +1,12 @@
-1. Install bare-metal nginx-ingress following docs @ https://kubernetes.github.io/ingress-nginx/deploy/ .
+1. kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.3/manifests/namespace.yaml
+2. kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.3/manifests/metallb.yaml
+
+3. Install bare-metal nginx-ingress following docs @ https://kubernetes.github.io/ingress-nginx/deploy/ .
    $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.3/deploy/static/provider/baremetal/deploy.yaml
-2. Check if the ingress controller pods have started.
+4. Check if the ingress controller pods have started.
    $ kubectl get pods -n ingress-nginx \
    -l app.kubernetes.io/name=ingress-nginx --watch
-3. Create nginx loadbalancer.
+5. Create nginx loadbalancer.
    $ kubectl apply -f nginx-loadbalancer.yaml
 
 ---
