@@ -1,6 +1,7 @@
 1. kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.3/manifests/namespace.yaml
 2. kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.3/manifests/metallb.yaml
-
+   create configmap for ip reservations
+   create secret
 3. Install bare-metal nginx-ingress following docs @ https://kubernetes.github.io/ingress-nginx/deploy/ .
    $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.3/deploy/static/provider/baremetal/deploy.yaml
 4. Check if the ingress controller pods have started.
@@ -11,8 +12,37 @@
 
 ---
 
+$ helm install metallb metallb/metallb --namespace kube-system \
+ --set configInline.address-pools[0].name=default \
+ --set configInline.address-pools[0].protocol=layer2 \
+ --set configInline.address-pools[0].addresses[0]=192.168.1.80-192.168.1.86
+
+$ helm install metallb metallb/metallb -f values
+
+---
+
+$ helm install ingress metallb/metallb --namespace kube-system \
+ --set configInline.address-pools[0].name=default \
+ --set configInline.address-pools[0].protocol=layer2 \
+ --set configInline.address-pools[0].addresses[0]=192.168.1.80-192.168.1.86
+
+---
+
+helm install \
+ cert-manager jetstack/cert-manager \
+ --namespace cert-manager \
+ --create-namespace \
+ --version v1.5.4
+
+--set installCRDs=true
+
+---
+
 4. Install cert manager for arm64 architecture.
-   $ curl -sL https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml | sed -r 's/(image:._):(v._)$/\1-arm64:\2/g' > cert-manager-arm.yaml
+   curl -sL \
+   https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml |\
+   sed -r 's/(image:._):(v._)$/\1-arm64:\2/g' > cert-manager-arm.yaml
+
 5. Ensure the image is what we want.
    $ grep image: cert-manager-arm.yaml
 6. Create from yaml file created in step 1.
@@ -42,7 +72,7 @@
     $ kubectl get clusterissuers
 
 17. Include proper certificate and ingress config within application yaml.
-
+let
 <!-- ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -55,27 +85,30 @@ spec:
     name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
-  - jmr-devops.com
+
+- jmr-devops.com
+
 ---
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-  name: personal-site-nginx-ingress
+annotations:
+kubernetes.io/ingress.class: "nginx"
+name: personal-site-nginx-ingress
 spec:
-  rules:
-  - host: jmr-devops.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: personal-site-nginx-service
-            port:
-              number: 80
+rules:
+
+- host: jmr-devops.com
+  http:
+  paths: - path: /
+  pathType: Prefix
+  backend:
+  service:
+  name: personal-site-nginx-service
+  port:
+  number: 80
   tls:
-  - hosts:
-    - jmr-devops.com
+- hosts:
+  - jmr-devops.com
     secretName: jmr-devops-tls -->
