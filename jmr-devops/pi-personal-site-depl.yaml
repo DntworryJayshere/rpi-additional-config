@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: personal-site-depl
+  labels:
+    app: personal-site-pi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: personal-site-pi
+  template:
+    metadata:
+      labels:
+        app: personal-site-pi
+    spec:
+      containers:
+        - name: personal-site-pi
+          image: dntworryjayshere/personal-site:pi-latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: personal-site-srv-pi
+spec:
+  type: ClusterIP
+  selector:
+    app: personal-site-pi
+  ports:
+    - name: personal-site-pi
+      protocol: TCP
+      port: 8080
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: personal-site-ingress-pi
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: www.jmr-devops.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: personal-site-srv-pi
+                port:
+                  number: 8080

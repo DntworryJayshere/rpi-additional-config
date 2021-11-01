@@ -1,47 +1,39 @@
+--- scp ubuntu@192.168.1.50:~/.kube/config ~/.kube/config2
+
 1. kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.3/manifests/namespace.yaml
 2. kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.3/manifests/metallb.yaml
    create configmap for ip reservations
-   create secret
-3. Install bare-metal nginx-ingress following docs @ https://kubernetes.github.io/ingress-nginx/deploy/ .
-   $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.3/deploy/static/provider/baremetal/deploy.yaml
-4. Check if the ingress controller pods have started.
-   $ kubectl get pods -n ingress-nginx \
-   -l app.kubernetes.io/name=ingress-nginx --watch
-5. Create nginx loadbalancer.
-   $ kubectl apply -f nginx-loadbalancer.yaml
-
 ---
 
-$ helm install metallb metallb/metallb --namespace kube-system \
- --set configInline.address-pools[0].name=default \
- --set configInline.address-pools[0].protocol=layer2 \
- --set configInline.address-pools[0].addresses[0]=192.168.1.80-192.168.1.86
+helm repo update
+helm install ingress-nginx ingress-nginx/ingress-nginx
 
-$ helm install metallb metallb/metallb -f values
+kubectl apply -f sampleApp/sampleAppIngress.yaml
+kubectl apply -f whoAmI/whoAmIIngress.yaml
+kubectl apply -f jmr-devops/pi-personal-site-depl.yaml
 
----
+curl web.example.com
 
-$ helm install ingress metallb/metallb --namespace kube-system \
- --set configInline.address-pools[0].name=default \
- --set configInline.address-pools[0].protocol=layer2 \
- --set configInline.address-pools[0].addresses[0]=192.168.1.80-192.168.1.86
+curl -kivL -H 'Host: web.example.com' 'http://192.168.1.80'
+curl -kivL -H 'Host: who.example.com' 'http://192.168.1.80'
+curl -kivL -H 'Host: www.jmr-devops.com' 'http://192.168.1.80'
 
 ---
 
 helm install \
- cert-manager jetstack/cert-manager \
- --namespace cert-manager \
- --create-namespace \
- --version v1.5.4
-
+cert-manager jetstack/cert-manager \
+--namespace cert-manager \
+--create-namespace \
+--version v1.5.4
 --set installCRDs=true
 
 ---
 
 4. Install cert manager for arm64 architecture.
-   curl -sL \
-   https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml |\
-   sed -r 's/(image:._):(v._)$/\1-arm64:\2/g' > cert-manager-arm.yaml
+
+curl -sL \
+https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml |\
+sed -r 's/(image:._):(v._)$/\1-arm64:\2/g' > cert-manager-arm.yaml
 
 5. Ensure the image is what we want.
    $ grep image: cert-manager-arm.yaml

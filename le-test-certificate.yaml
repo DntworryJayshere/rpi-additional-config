@@ -9,4 +9,4 @@ spec:
     name: letsencrypt-staging
     kind: ClusterIssuer
   dnsNames:
-    - jmr-devops.com
+    - www.jmr-devops.com
