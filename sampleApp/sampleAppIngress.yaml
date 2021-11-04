@@ -33,10 +33,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: web-server-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
   ingressClassName: nginx
   rules:
-    - host: web.example.com
+    - host: jmr-devops.com
       http:
         paths:
           - path: /
@@ -46,3 +48,7 @@ spec:
                 name: web-server-service
                 port:
                   number: 5000
+  tls:
+    - hosts:
+        - jmr-devops.com
+      secretName: tls-secret

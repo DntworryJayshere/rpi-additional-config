@@ -7,6 +7,5 @@ spec:
   secretName: jmr-devops-tls
   issuerRef:
     name: letsencrypt-staging
-    kind: ClusterIssuer
   dnsNames:
     - www.jmr-devops.com

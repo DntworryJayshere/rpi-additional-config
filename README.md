@@ -6,7 +6,8 @@
 ---
 
 helm repo update
-helm install ingress-nginx ingress-nginx/ingress-nginx
+helm install ingress-nginx ingress-nginx/ingress-nginx --namespace kube-system \
+--set defaultBackend.enabled=false
 
 kubectl apply -f sampleApp/sampleAppIngress.yaml
 kubectl apply -f whoAmI/whoAmIIngress.yaml
@@ -32,8 +33,14 @@ cert-manager jetstack/cert-manager \
 4. Install cert manager for arm64 architecture.
 
 curl -sL \
-https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml |\
-sed -r 's/(image:._):(v._)$/\1-arm64:\2/g' > cert-manager-arm.yaml
+https://github.com/jetstack/cert-manager/releases/download/v1.0.3/cert-manager.yaml |\
+
+<!-- sed -r 's/(image:.*):(v.*)$/\1-arm:\2/g' > cert-manager-arm.yaml -->
+
+curl -sL \
+https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.yaml |\
+
+<!-- sed -r 's/(image:.*):(v.*)$/\1-arm:\2/g' > cert-manager-arm.yaml -->
 
 5. Ensure the image is what we want.
    $ grep image: cert-manager-arm.yaml

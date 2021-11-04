@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: personal-site-pi
-          image: dntworryjayshere/personal-site:pi-latest
+          image: dntworryjayshere/personal-site:pi-latest1
           ports:
             - containerPort: 80
 ---
@@ -25,7 +25,6 @@ kind: Service
 metadata:
   name: personal-site-srv-pi
 spec:
-  type: ClusterIP
   selector:
     app: personal-site-pi
   ports:
@@ -38,10 +37,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: personal-site-ingress-pi
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: nginx
   rules:
-    - host: www.jmr-devops.com
+    - host: jmr-devops.com
       http:
         paths:
           - path: /
@@ -51,3 +52,7 @@ spec:
                 name: personal-site-srv-pi
                 port:
                   number: 8080
+  tls:
+    - hosts:
+        - jmr-devops.com
+      secretName: tls-secret
